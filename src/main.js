@@ -1,6 +1,9 @@
-import { app, BrowserWindow } from 'electron';
+import { app, BrowserWindow, ipcMain } from 'electron';
 import path from 'node:path';
 import started from 'electron-squirrel-startup';
+
+
+import { setupIpcHandlers } from './main/fileManager'
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (started) {
@@ -15,8 +18,9 @@ const createWindow = () => {
     minWidth: 600,
     minHeight: 400,
     webPreferences: {
-      nodeIntegration: true,
-      contextIsolation: false
+      preload: path.join(__dirname, 'preload.js'),
+      contextIsolation: true,
+      nodeIntegration: false,
     },
     vibrancy: 'fullscreen-ui',
     titleBarStyle: 'hidden',
@@ -52,6 +56,8 @@ app.whenReady().then(() => {
       createWindow();
     }
   });
+
+  setupIpcHandlers(); // <<< You must call this
 });
 
 // Quit when all windows are closed, except on macOS. There, it's common

@@ -2,7 +2,7 @@ import React from "react";
 import TitleBar2 from "./TitleBar2";
 import Button from "../ui/Button";
 import MediaControls from "../ui/MediaControls";
-import SampleList from "../ui/SampleList";
+import SampleBody from "./SampleBody";
 
 
 function MainBody() {
@@ -13,7 +13,7 @@ function MainBody() {
                 </div>
             </TitleBar2>
             <div className="container mx-auto pl-4 pr-4 flex-1 w-full h-[calc(100vh-3rem)]">
-                <SampleList/>
+                <SampleBody/>
                 <MediaControls/>
             </div>
         </main>
