@@ -1,11 +1,13 @@
+// Sample.jsx
 const Sample = ({ path, name }) => {
-    return (
-      <div className="p-2 border rounded shadow">
-        <p className="font-semibold">{name}</p>
-        <audio controls src={`file://${path}`} className="w-full" />
-      </div>
-    );
-  };
-  
-  export default Sample;
-  
+  const asaiSrc = `asai://${encodeURIComponent(path)}`;
+
+  return (
+    <div className="p-2 border rounded shadow">
+      <p className="font-semibold">{name}</p>
+      <audio controls autoPlay src={asaiSrc} className="w-full" />
+    </div>
+  );
+};
+
+export default Sample;

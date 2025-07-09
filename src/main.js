@@ -1,9 +1,24 @@
-import { app, BrowserWindow, ipcMain } from 'electron';
+import { app, BrowserWindow, ipcMain, protocol } from 'electron';
 import path from 'node:path';
 import started from 'electron-squirrel-startup';
 
-
+// custom ASAI setup
+import fs from 'fs/promises'; // async file access
+import mime from 'mime'; // for correct MIME types
 import { setupIpcHandlers } from './main/fileManager'
+
+protocol.registerSchemesAsPrivileged([
+  {
+    scheme: 'asai',
+    privileges: {
+      secure: true,
+      standard: true,
+      stream: true,
+      supportFetchAPI: true,
+    },
+  },
+]);
+// 
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (started) {
@@ -21,6 +36,7 @@ const createWindow = () => {
       preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true,
       nodeIntegration: false,
+      autoplayPolicy: 'no-user-gesture-required',
     },
     vibrancy: 'fullscreen-ui',
     titleBarStyle: 'hidden',
@@ -57,7 +73,27 @@ app.whenReady().then(() => {
     }
   });
 
-  setupIpcHandlers(); // <<< You must call this
+  //custom ASAI file protocol
+  protocol.handle('asai', async (request) => {
+    const filePath = decodeURIComponent(request.url.replace('asai://', ''));
+    console.log('Decoded file path:', filePath);
+    try {
+      const data = await fs.readFile(filePath);
+      const mimeType = mime.getType(filePath) || 'application/octet-stream';
+
+      return new Response(data, {
+        headers: { 'Content-Type': mimeType },
+      });
+    } catch (err) {
+      console.error('Failed to load file:', filePath, err);
+      return new Response('File not found', { status: 404 });
+    }
+  });
+  //
+
+  // custom ASAI IPC Handler for file handling
+  setupIpcHandlers(); 
+  //
 });
 
 // Quit when all windows are closed, except on macOS. There, it's common
